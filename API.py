@@ -15,7 +15,7 @@ def add_mapping(listen_addr, forward_addr):
 # 删除端口映射
 def delete_mapping(listen_addr):
     headers = {"Authorization": auth_code}
-    params = {"listenAddr": listen_addr, "mappingType": "tcpudp"}
+    params = {"listenAddr": listen_addr, "mappingType": "tcp"}
     response = requests.delete(api_url + "delete", params=params, headers=headers)
     print(response.status_code)
     print(response.text)
@@ -26,12 +26,4 @@ def query_mappings():
     response = requests.get(api_url + "query", headers=headers)
     print(response.status_code)
     print(response.text)
-
-# delete_mapping(":90")
-
-add_mapping(":80", "192.168.8.1:80")
-add_mapping(":81", "192.168.8.1:81")
-add_mapping(":82", "192.168.8.1:82")
-add_mapping(":83", "192.168.8.1:8")
-
-query_mappings()
+    
