@@ -72,6 +72,9 @@ os.makedirs(output_dir, exist_ok=True)
 # 安卓 NDK 路径
 android_ndk_path = "C:\\project\\sdk_runtime\\android-ndk-r26d"
 
+#gcflags
+gcflags = "-l=4"
+
 if not os.path.exists(android_ndk_path):
     print("安卓 ndk 不存在 无法编译安卓版本")
 
@@ -79,7 +82,7 @@ for os_name, arch in platforms:
     env = os.environ.copy()
     env["GOOS"] = os_name
     env["GOARCH"] = arch
-    
+
     if "android" in os_name and arch == "arm":
         
         sdk_version = android_sdk_version.get(os_name)
@@ -92,6 +95,11 @@ for os_name, arch in platforms:
     else:
         env["CGO_ENABLED"] = "0"
 
+    if arch == "amd64":
+        env["GOAMD64"] = "v3" # 较为现代
+    elif arch == "arm64":
+        env["GOARM"] = "7"
+
     output_name = f"{os_name}_{arch}_{os.path.splitext(go_file)[0]}"
     
     if os_name == "windows":
@@ -99,7 +107,16 @@ for os_name, arch in platforms:
     
     output_path = os.path.join(output_dir, output_name)
     
-    cmd = ["go", "build", "-ldflags", "-s -w", "-o", output_path, go_file]
+    cmd = ["go", "build", "-ldflags", "-s -w"]
+
+    if gcflags:
+        cmd.append("-gcflags")
+        cmd.append(gcflags)
+
+    cmd.append("-o")
+    cmd.append(output_path)
+    cmd.append(go_file)
+
     result = subprocess.run(cmd, env=env, capture_output=True, text=True)
     
     if result.returncode == 0:
